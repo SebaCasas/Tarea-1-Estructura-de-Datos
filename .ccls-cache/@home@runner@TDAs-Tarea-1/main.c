@@ -2,6 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct{
+  char nombre[30];
+  int edad;
+  char sintomas[50];
+} Paciente;
+typedef struct {
+  int numLlegada;
+  char prioridad;
+  Paciente *paciente;
+} Atencion;
+
 // Función para limpiar la pantalla
 void limpiarPantalla() { system("clear"); }
 
@@ -28,6 +39,9 @@ void mostrarMenuPrincipal() {
 
 void registrar_paciente(List *pacientes) {
   printf("Registrar nuevo paciente\n");
+  Atencion *nuevoP = malloc(sizeof(Atencion));
+  nuevoP->paciente = malloc(sizeof(Paciente));
+
   // Aquí implementarías la lógica para registrar un nuevo paciente
 }
 
