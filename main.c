@@ -1,7 +1,7 @@
 #include "tdas/list.h"
 #include <stdio.h>
 #include <stdlib.h>
-//agregado
+//agregado HOLA GIT
 #include <string.h>
 
 typedef struct{
