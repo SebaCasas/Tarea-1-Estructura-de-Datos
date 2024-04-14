@@ -1,17 +1,22 @@
 #include "tdas/list.h"
 #include <stdio.h>
 #include <stdlib.h>
+//agregado
+#include <string.h>
 
 typedef struct{
-  char nombre[30];
+  char nombre[100];
   int edad;
-  char sintomas[50];
+  char sintomas[100];
 } Paciente;
+
 typedef struct {
   int numLlegada;
-  char prioridad;
+  char prioridad[6];
   Paciente *paciente;
 } Atencion;
+
+int numeroAtencionGlobal = 1;
 
 // Función para limpiar la pantalla
 void limpiarPantalla() { system("clear"); }
@@ -38,17 +43,36 @@ void mostrarMenuPrincipal() {
 }
 
 void registrar_paciente(List *pacientes) {
-  printf("Registrar nuevo paciente\n");
+  //INGRESO DATOS PACIENTE
+  printf("\nRegistrar nuevo paciente\n");
   Atencion *nuevoP = malloc(sizeof(Atencion));
+  if(nuevoP == NULL)printf("A sucedido un error al registrar");
   nuevoP->paciente = malloc(sizeof(Paciente));
-
+  printf("Ingrese el nombre del nuevo paciente: ");
+  scanf("%s", nuevoP->paciente->nombre);
+  printf("\nIngrese la edad de %s: ", nuevoP->paciente->nombre);
+  scanf("%d", &nuevoP->paciente->edad);
+  printf("\nIngrese los sintomas de %s: ", nuevoP->paciente->nombre);
+  scanf("%s", nuevoP->paciente->sintomas);
+  nuevoP->numLlegada = numeroAtencionGlobal++;
+  strcpy(nuevoP->prioridad,"BAJA");
+  list_pushBack(pacientes,nuevoP);
   // Aquí implementarías la lógica para registrar un nuevo paciente
 }
 
 void mostrar_lista_pacientes(List *pacientes) {
   // Mostrar pacientes en la cola de espera
-  printf("Pacientes en espera: \n");
+  printf("\nPacientes en espera: \n");
   // Aquí implementarías la lógica para recorrer y mostrar los pacientes
+  //Lo que hizo el chat:
+  for (void *current = list_first(pacientes); current != NULL; current = list_next(pacientes)) {
+    Atencion *atencion = current;
+    printf("   Número de llegada: %d\n", atencion->numLlegada);
+    printf("   Nombre: %s\n", atencion->paciente->nombre);
+    printf("   Edad: %d\n", atencion->paciente->edad);
+    printf("   Síntomas: %s\n", atencion->paciente->sintomas);
+    printf("   Prioridad: %s\n\n", atencion->prioridad);
+  }
 }
 
 int main() {
