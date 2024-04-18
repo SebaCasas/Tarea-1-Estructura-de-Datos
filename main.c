@@ -1,7 +1,7 @@
 #include "tdas/list.h"
 #include <stdio.h>
 #include <stdlib.h>
-//agregado HOLA GIT
+//agregado
 #include <string.h>
 
 typedef struct{
@@ -75,6 +75,37 @@ void mostrar_lista_pacientes(List *pacientes) {
   }
 }
 
+void asignar_prioridad(List *pacientes) {
+  char nombre[100];
+  char nueva_prioridad[6];
+
+  // Solicitar nombre del paciente y nueva prioridad
+  mostrar_lista_pacientes(pacientes);
+  printf("Ingrese el nombre del paciente para actualizar prioridad: ");
+  scanf("%s", nombre);
+  printf("\nIngrese la nueva prioridad (Alto/Medio/Bajo): ");
+  scanf("%s", nueva_prioridad);
+
+  // Buscar al paciente por su nombre en la lista
+  int encontrado = 0;
+  for (void *current = list_first(pacientes); current != NULL; current = list_next(pacientes)) {
+    Atencion *atencion = current;
+    if (strcmp(atencion->paciente->nombre, nombre) == 0) {
+      // Actualizar la prioridad del paciente encontrado
+      strcpy(atencion->prioridad, nueva_prioridad);
+      encontrado = 1;
+      printf("Prioridad asignada correctamente.\n");
+      break; // Terminar el bucle una vez que se haya encontrado al paciente
+    }
+  }
+
+  // Si el paciente no se encuentra, mostrar un aviso
+  if (!encontrado) {
+    printf("El paciente con nombre %s no ha sido encontrado en la lista de espera.\n", nombre);
+  }
+}
+
+
 int main() {
   char opcion;
   List *pacientes = list_create(); // puedes usar una lista para gestionar los pacientes
@@ -90,7 +121,7 @@ int main() {
       registrar_paciente(pacientes);
       break;
     case '2':
-      // Lógica para asignar prioridad
+      asignar_prioridad(pacientes);
       break;
     case '3':
       mostrar_lista_pacientes(pacientes);
