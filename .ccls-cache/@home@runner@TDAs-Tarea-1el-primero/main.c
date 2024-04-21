@@ -67,7 +67,7 @@ void registrar_paciente(List *pacientes) {
   puts("");
 }
 
-int comparar_pacientes_prioridad(const void *a, const void *b) {
+int comparar_pacientes_prioridad( void *a, void *b) {
     const Atencion *atencion1 = *(const Atencion **)a;
     const Atencion *atencion2 = *(const Atencion **)b;
 
@@ -105,10 +105,9 @@ int comparar_pacientes_prioridad(const void *a, const void *b) {
     }
 }
 
-void mostrar_lista_pacientes(List *pacientes) {
-  limpiarPantalla();
-  
-  int size = numeroAtencionGlobal;
+void ordenar_pacientes_bubbleSort(List *pacientes) {
+  // Creamos un arreglo dinámico para almacenar los elementos de la lista
+  int size = numeroAtencionGlobal; // Tamaño inicial del arreglo
   Atencion **array = (Atencion **)malloc(size * sizeof(Atencion *));
   if (array == NULL) {
       printf("Error: No se pudo asignar memoria para el arreglo.\n");
@@ -130,37 +129,60 @@ void mostrar_lista_pacientes(List *pacientes) {
       }
   }
 
-  // Ordenar el arreglo utilizando qsort
-  qsort(array, index, sizeof(Atencion *), comparar_pacientes_prioridad);
+  // Ordenar el arreglo utilizando el método de ordenación de burbuja
+  for (int i = 0; i < index - 1; i++) {
+      for (int j = 0; j < index - i - 1; j++) {
+          if (comparar_pacientes_prioridad(&array[j], &array[j + 1]) > 0) {
+              // Intercambiar los elementos si están en el orden incorrecto
+              Atencion *temp = array[j];
+              array[j] = array[j + 1];
+              array[j + 1] = temp;
+          }
+      }
+  }
 
   // Limpiar la lista para insertar los elementos ordenados
   list_clean(pacientes);
 
   // Insertar los elementos ordenados de vuelta en la lista
   for (int i = 0; i < index; i++) {
-      list_pushBack(pacientes, array[i]);
+        list_pushBack(pacientes, array[i]);
   }
+
+  // Liberar memoria del arreglo
   free(array);
-  // Mostrar pacientes en la cola de espera
-  printf("\nPacientes en espera: ");
-  puts("");
-  // Aquí implementarías la lógica para recorrer y mostrar los pacientes
-  for (void *current = list_first(pacientes); current != NULL; current = list_next(pacientes)) {
-    Atencion *atencion = current;
-    struct tm *local = localtime(&atencion->hora);
-    printf("   Nombre: %s\n", atencion->datosPaciente->nombre);
-    printf("   Edad: %d\n", atencion->datosPaciente->edad);
-    printf("   Síntomas: %s\n", atencion->datosPaciente->sintomas);
-    printf("   Prioridad: %s\n", atencion->prioridad);
-    printf("   Hora de llegada: %d:%d:%d\n", local->tm_hour, local->tm_min,local->tm_sec);
+}
+
+void mostrar_lista_pacientes(List *pacientes) {
+  limpiarPantalla();
+
+  void *current = list_first(pacientes);
+  if(current == NULL)printf("No hay pacientes en espera");
+  
+  else{
+    ordenar_pacientes_bubbleSort(pacientes);
+    
+    // Mostrar pacientes en la cola de espera
+    printf("Pacientes en espera: ");
     puts("");
+    puts("");
+    // Aquí implementarías la lógica para recorrer y mostrar los pacientes
+    for (; current != NULL; current = list_next(pacientes)) {
+      Atencion *atencion = current;
+      struct tm *local = localtime(&atencion->hora);
+      printf("   Nombre: %s\n", atencion->datosPaciente->nombre);
+      printf("   Edad: %d\n", atencion->datosPaciente->edad);
+      printf("   Síntomas: %s\n", atencion->datosPaciente->sintomas);
+      printf("   Prioridad: %s\n", atencion->prioridad);
+      printf("   Hora de llegada: %d:%d:%d\n", local->tm_hour, local->tm_min, local->tm_sec);
+      puts("");
+    }
   }
-  puts("");
 }
 
 void asignar_prioridad(List *pacientes) {
   limpiarPantalla();
-  char nombre[100];
+  char nombre[MAX];
   char nueva_prioridad[6];
 
   mostrar_lista_pacientes(pacientes);
@@ -169,26 +191,33 @@ void asignar_prioridad(List *pacientes) {
   printf("\nIngrese la nueva prioridad (Alto/Medio/Bajo): ");
   scanf("%s", nueva_prioridad);
 
-  int encontrado = 0;
-  for (void *current = list_first(pacientes); current != NULL; current = list_next(pacientes)) {
-    Atencion *atencion = current;
-    if (strcmp(atencion->datosPaciente->nombre, nombre) == 0) {
-      strcpy(atencion->prioridad, nueva_prioridad);
-      encontrado = 1;
-      puts("");
-      printf("Prioridad asignada correctamente.\n");
-      break; 
+  if(strcmp(nueva_prioridad,"Alto") != 0 && strcmp(nueva_prioridad,"Medio") != 0 && strcmp(nueva_prioridad,"Bajo") != 0)
+    printf("No existe la prioridad %s",nueva_prioridad);
+  else{
+    int encontrado = 0;
+    for (void *current = list_first(pacientes); current != NULL; current = list_next(pacientes)) {
+      Atencion *atencion = current;
+      if (strcmp(atencion->datosPaciente->nombre, nombre) == 0) {
+        strcpy(atencion->prioridad, nueva_prioridad);
+        encontrado = 1;
+        puts("");
+        printf("Prioridad asignada correctamente.\n");
+        break; 
+      }
     }
-  }
 
-  if (!encontrado) {
-    printf("El paciente con nombre %s no ha sido encontrado en la lista de espera.\n", nombre);
+    if (!encontrado) {
+      printf("El paciente con nombre %s no ha sido encontrado en la lista de espera.\n", nombre);
+    }
   }
   puts("");
 }
 
 void atender_paciente(List *pacientes){
   limpiarPantalla();
+
+  ordenar_pacientes_bubbleSort(pacientes);
+  
   Atencion *atencion = list_popFront(pacientes);
   if(atencion == NULL)
     printf("No hay pacientes en espera\n");
@@ -197,7 +226,7 @@ void atender_paciente(List *pacientes){
     struct tm *local = localtime(&atencion->hora);
     printf("   Edad: %d\n", atencion->datosPaciente->edad);
     printf("   Síntomas: %s\n", atencion->datosPaciente->sintomas);
-    printf("   Prioridad: %s\n\n", atencion->prioridad);
+    printf("   Prioridad: %s\n", atencion->prioridad);
     printf("   Hora de llegada: %d:%d:%d\n", local->tm_hour, local->tm_min,local->tm_sec);
   }
   puts("");
@@ -211,22 +240,26 @@ void mostrar_prioridad_pacientes(List *pacientes){
   printf("Ingrese la prioridad de pacientes a mostrar (Alto/Medio/Bajo): ");
   scanf( "%s", prioridad);
   puts("");
-  // Aquí implementarías la lógica para recorrer y mostrar los pacientes
-  for (void *current = list_first(pacientes); current != NULL; current = list_next(pacientes)) {
-    Atencion *atencion = current;
-    if(strcmp(prioridad,atencion->prioridad) == 0){
-      cont++;
-      struct tm *local = localtime(&atencion->hora);
-      printf("   Nombre: %s\n", atencion->datosPaciente->nombre);
-      printf("   Edad: %d\n", atencion->datosPaciente->edad);
-      printf("   Síntomas: %s\n", atencion->datosPaciente->sintomas);
-      printf("   Prioridad: %s\n\n", atencion->prioridad);
-      printf("   Hora de llegada: %d:%d:%d\n", local->tm_hour, local->tm_min,local->tm_sec);
+  if(strcmp(prioridad,"Alto") != 0 && strcmp(prioridad,"Medio") != 0 && strcmp(prioridad,"Bajo") != 0)
+    printf("No existe la prioridad %s",prioridad);
+  else{
+    // Aquí implementarías la lógica para recorrer y mostrar los pacientes
+    for (void *current = list_first(pacientes); current != NULL; current = list_next(pacientes)) {
+      Atencion *atencion = current;
+      if(strcmp(prioridad,atencion->prioridad) == 0){
+        cont++;
+        struct tm *local = localtime(&atencion->hora);
+        printf("   Nombre: %s\n", atencion->datosPaciente->nombre);
+        printf("   Edad: %d\n", atencion->datosPaciente->edad);
+        printf("   Síntomas: %s\n", atencion->datosPaciente->sintomas);
+        printf("   Prioridad: %s\n", atencion->prioridad);
+        printf("   Hora de llegada: %d:%d:%d\n", local->tm_hour, local->tm_min,local->tm_sec);
+        puts("");
+      }
     }
   }
   if(cont == 0)
     printf("No hay pacientes con prioridad %s\n", prioridad);
-  puts("");
 }
 
 int main() {
