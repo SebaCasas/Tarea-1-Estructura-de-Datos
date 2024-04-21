@@ -23,8 +23,25 @@ Y luego ejecutar:
 ./main
 ````
 ### Uso de la aplicación
+Al realizar la ejecución indicada se abrira el siguiente menu:
+````
+========================================
+     Sistema de Gestión Hospitalaria
+========================================
+1) Registrar paciente
+2) Asignar prioridad a paciente
+3) Mostrar lista de espera
+4) Atender al siguiente paciente
+5) Mostrar pacientes por prioridad
+6) Salir
+Ingrese su opción:
+````
+Se debera ingresar el numero que acompaña a la accion en el menu para realizar la función deaseada.
+
+A continuación lo que se puede realizar en cada una de las opciones:
 * `Registrar paciente`: Ingresa los datos del paciente: nombre, edad y síntomas.
 * `Asignar prioridad a paciente`: Ingresa el nombre del paciente y el nuevo nivel de prioridad.
 * `Mostrar lista de espera`: Muestra la lista de pacientes en espera.
 * `Atender al siguiente paciente`: Selecciona y atiende al siguiente paciente de la lista de espera.
 * `Mostrar pacientes por prioridad`: Ingresa un nivel de prioridad y muestra los pacientes correspondientes.
+* `Salir`: Termina el programa.
